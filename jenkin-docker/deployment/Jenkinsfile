@@ -1,0 +1,42 @@
+pipeline {
+
+    agent any
+	
+ stages{
+     stage('getting latest image from docker hub') {
+            steps {
+                script {
+                 sh './latest_image.sh'   
+                }
+            }
+            
+        }
+		
+     stage('replacing latest image into deployment.yaml file') {
+	     steps {
+	         script {
+	           sh './replace_image.sh'
+	        	}
+         	}
+	}
+
+     
+     stage('print  deployment.yaml file after replacinf latest image') {
+             steps {
+               script {
+                    sh "cat $deployment.yaml"
+                }
+             }
+        }
+		
+	# stage('Deploy to k8s'){
+            steps{
+                script{
+                    kubernetesDeploy (configs: 'deployment.yaml',kubeconfigId: 'k8sconfigpwd')
+                }
+            }
+        }
+		
+    } 	
+	
+}
